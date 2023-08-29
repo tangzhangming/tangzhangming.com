@@ -65,13 +65,15 @@ func HttpServer() {
 	fmt.Println("\n -------------------- HTTP --------------------")
 	fmt.Printf("[%s] 系统初始检测完成，正在启动HTTP服务... \n", config.Conf.Name)
 
-	r := gin.Default()
-	r.Use(ValidatorMiddleware())
+	srv := gin.Default()
+	srv.Use(ValidatorMiddleware())
+	srv.LoadHTMLGlob("./web/template/*")
+	srv.Static("/static", "./web/static")
+	srv.StaticFile("/favicon.ico", "./web/static/favicon-32x32.png")
 
-	controller.Routes(r)
-
-	//启动HTTP服务
-	r.Run(config.Conf.Host + ":" + strconv.Itoa(config.Conf.Port))
+	//注册业务路由并且启动
+	controller.Routes(srv)
+	srv.Run(config.Conf.Host + ":" + strconv.Itoa(config.Conf.Port)) //启动HTTP服务
 }
 
 func ValidatorMiddleware() gin.HandlerFunc {

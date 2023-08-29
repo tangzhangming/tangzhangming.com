@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,12 @@ func Index(c *gin.Context) {
 	rdb := redis.Conn()
 	id, _ := rdb.Incr(c, "welcomen").Result()
 
-	c.String(200, "app name is : "+config.Conf.Name+", N=:"+strconv.Itoa(int(id)))
+	// c.String(200, "app name is : "+config.Conf.Name+", N=:"+strconv.Itoa(int(id)))
+
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"appName": config.Conf.Name,
+		"viewnum": strconv.Itoa(int(id)),
+	})
 }
 
 func Config(c *gin.Context) {
@@ -34,7 +40,6 @@ func Config(c *gin.Context) {
 
 	c.JSON(200, config.Conf)
 }
-
 
 func ping(c *gin.Context) {
 	c.JSON(200, gin.H{
