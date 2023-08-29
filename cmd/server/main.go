@@ -9,13 +9,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"tangzhangming.com/api"
-	"tangzhangming.com/crontab"
-	"tangzhangming.com/pkg/config"
-	"tangzhangming.com/pkg/database"
-	"tangzhangming.com/pkg/log"
-	"tangzhangming.com/pkg/redis"
-	"tangzhangming.com/routes"
+	"tangzhangming.com/internal/controller"
+	"tangzhangming.com/internal/crontab"
+	"tangzhangming.com/internal/pkg/config"
+	"tangzhangming.com/internal/pkg/database"
+	"tangzhangming.com/internal/pkg/log"
+	"tangzhangming.com/internal/pkg/redis"
 )
 
 func main() {
@@ -69,8 +68,7 @@ func HttpServer() {
 	r := gin.Default()
 	r.Use(ValidatorMiddleware())
 
-	api.Route(r)
-	routes.Web(r)
+	controller.Routes(r)
 
 	//启动HTTP服务
 	r.Run(config.Conf.Host + ":" + strconv.Itoa(config.Conf.Port))

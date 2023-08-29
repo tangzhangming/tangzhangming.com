@@ -10,13 +10,14 @@ import (
 func Load() {
 	fmt.Println("-------------------- OPTION --------------------")
 
-	viper.SetConfigFile("./conf/conf.yaml")
+	confFileName := "./config.yaml"
+	viper.SetConfigFile(confFileName)
 
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	} else {
-		fmt.Printf("[%s] 配置文件 conf/conf.yaml 读取成功 \n", Conf.Name)
+		fmt.Printf("[%s] 配置文件 '%s' 读取成功 \n", viper.Get("name"), confFileName)
 	}
 
 	if err := viper.Unmarshal(Conf); err != nil {

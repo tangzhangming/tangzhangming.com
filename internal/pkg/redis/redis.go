@@ -3,20 +3,29 @@ package redis
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/redis/go-redis/v9"
-	"tangzhangming.com/pkg/config"
+	"tangzhangming.com/internal/pkg/config"
 )
 
 var connection *redis.Client
 
+var lock sync.RWMutex
+
 func Conn() *redis.Client {
-	return connection
+	lock.RLock()
+	c := connection
+	lock.RUnlock()
+
+	return c
 }
 
 func SetConn() {
-	fmt.Println("\n -------------------- REDIS --------------------")
+	defer lock.Unlock()
+	lock.Lock()
 
+	fmt.Println("\n -------------------- REDIS --------------------")
 	connection = redis.NewClient(&redis.Options{
 		Addr:     config.Conf.RedisConf.Addr,
 		Username: config.Conf.RedisConf.Username,
@@ -24,7 +33,7 @@ func SetConn() {
 		DB:       config.Conf.RedisConf.DB,
 	})
 
-	fmt.Printf("[%s] Redis %s 连接成功 \n", config.Conf.Name, config.Conf.RedisConf.Addr)
+	fmt.Printf("[%s] Redis %s 配置成功 \n", config.Conf.Name, config.Conf.RedisConf.Addr)
 	if connection.Ping(context.Background()).Err() != nil {
 		fmt.Printf("[%s] Redis %s Ping 测试失败 \n", config.Conf.Name, config.Conf.RedisConf.Addr)
 	} else {

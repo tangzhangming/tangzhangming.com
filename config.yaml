@@ -1,10 +1,10 @@
-name: "Twitter 1.0"
-host: "127.0.0.1"
-port: 3306
-version: "1.0.0"
+Name: "My Application"
+Host: "127.0.0.1"
+Port: 3306
+Version: "1.0.0"
 
 
-Mysql:
+MysqlConf:
   host: "127.0.0.1"
   port: 3306
   database: "tang"

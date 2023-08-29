@@ -1,4 +1,4 @@
-package api
+package controller
 
 import (
 	"net/http"
@@ -13,11 +13,11 @@ type User struct {
 	// Age   int    `json:"age" validate:"gte=0,lte=150"`
 }
 
-func user_view(c *gin.Context) {
+func User_view(c *gin.Context) {
 
 }
 
-func user_create(c *gin.Context) {
+func User_create(c *gin.Context) {
 
 	// 从 Gin 上下文中获取验证器
 	vd, exists := c.Get("vd")

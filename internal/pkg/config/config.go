@@ -1,11 +1,11 @@
 package config
 
 type Config struct {
-	Name string `mapstructure:"name"` //应用名称
-	Host string `mapstructure:"host"` //HTTP服务主机
-	Port int    `mapstructure:"port"` //HTTP端口
+	Name string `mapstructure:"Name"` //应用名称
+	Host string `mapstructure:"Host"` //HTTP服务主机
+	Port int    `mapstructure:"Port"` //HTTP端口
 
-	Mysql struct {
+	MysqlConf struct {
 		Host     string `mapstructure:"host"`     //
 		Port     int    `mapstructure:"port"`     //
 		Database string `mapstructure:"database"` //

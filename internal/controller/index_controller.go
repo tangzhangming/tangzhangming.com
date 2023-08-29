@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"tangzhangming.com/pkg/config"
-	"tangzhangming.com/pkg/log"
-	"tangzhangming.com/pkg/redis"
+	"tangzhangming.com/internal/pkg/config"
+	"tangzhangming.com/internal/pkg/log"
+	"tangzhangming.com/internal/pkg/redis"
 )
 
 func Index(c *gin.Context) {
@@ -33,4 +33,11 @@ func Config(c *gin.Context) {
 	log.Info("一条错误信息")
 
 	c.JSON(200, config.Conf)
+}
+
+
+func ping(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
 }
