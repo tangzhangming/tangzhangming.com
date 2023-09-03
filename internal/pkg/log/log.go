@@ -7,56 +7,22 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// 定义一个全局 logger 实例
-// Logger提供快速、分级、结构化的日志记录。所有方法对于并发使用都是安全的。
-// Logger是为每一微秒和每一个分配都很重要的上下文设计的，
-// 因此它的API有意倾向于性能和类型安全，而不是简便性。
-// 对于大多数应用程序，SugaredLogger在性能和人体工程学之间取得了更好的平衡。
+
 var logger *zap.Logger
 
-// SugaredLogger将基本的Logger功能封装在一个较慢但不那么冗长的API中。任何Logger都可以通过其Sugar方法转换为sugardlogger。
-//与Logger不同，SugaredLogger并不坚持结构化日志记录。对于每个日志级别，它公开了四个方法:
-//   - methods named after the log level for log.Print-style logging
-//   - methods ending in "w" for loosely-typed structured logging
-//   - methods ending in "f" for log.Printf-style logging
-//   - methods ending in "ln" for log.Println-style logging
+type Field = zap.Field
 
-// For example, the methods for InfoLevel are:
-//
-//	Info(...any)           Print-style logging
-//	Infow(...any)          Structured logging (read as "info with")
-//	Infof(string, ...any)  Printf-style logging
-//	Infoln(...any)         Println-style logging
-var sugarLogger *zap.SugaredLogger
+// SugaredLogger将基本的Logger功能封装在一个较慢但不那么冗长的API中。任何Logger都可以通过其Sugar方法转换为sugardlogger。
+// var sugarLogger *zap.SugaredLogger
 
 func InitLogger() {
-	writeSyncer := getLogWriter()
-	encoder := getEncoder()
 	// NewCore创建一个向WriteSyncer写入日志的Core。
-
-	// A WriteSyncer is an io.Writer that can also flush any buffered data. Note
-	// that *os.File (and thus, os.Stderr and os.Stdout) implement WriteSyncer.
-
-	// LevelEnabler决定在记录消息时是否启用给定的日志级别。
-	// Each concrete Level value implements a static LevelEnabler which returns
-	// true for itself and all higher logging levels. For example WarnLevel.Enabled()
-	// will return true for WarnLevel, ErrorLevel, DPanicLevel, PanicLevel, and
-	// FatalLevel, but return false for InfoLevel and DebugLevel.
-	core := zapcore.NewCore(encoder, writeSyncer, zapcore.DebugLevel)
-
-	// New constructs a new Logger from the provided zapcore.Core and Options. If
-	// the passed zapcore.Core is nil, it falls back to using a no-op
-	// implementation.
+	core := zapcore.NewCore(getEncoder(), getLogWriter(), zapcore.DebugLevel)
 	logger = zap.New(core)
-	// Sugar封装了Logger，以提供更符合人体工程学的API，但速度略慢。糖化一个Logger的成本非常低，
-	// 因此一个应用程序同时使用Loggers和SugaredLoggers是合理的，在性能敏感代码的边界上在它们之间进行转换。
-	sugarLogger = logger.Sugar()
 }
 
 func getEncoder() zapcore.Encoder {
 	// NewJSONEncoder创建了一个快速、低分配的JSON编码器。编码器适当地转义所有字段键和值。
-	// NewProductionEncoderConfig returns an opinionated EncoderConfig for
-	// production environments.
 	return zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
 }
 
@@ -70,6 +36,14 @@ func getLogWriter() zapcore.WriteSyncer {
 	return zapcore.AddSync(file)
 }
 
-func Info(msg string, fields ...zapcore.Field) {
-	logger.Info(msg, fields...)
-}
+// 快捷调用zapcore
+func String(key string, val string) Field { return zap.String(key, val) }
+func Int(key string, val int) Field       { return zap.Int(key, val) }
+
+// 快捷调用
+func Debug(msg string, fields ...Field)  { logger.Debug(msg, fields...) }
+func Info(msg string, fields ...Field)   { logger.Info(msg, fields...) }
+func Warn(msg string, fields ...Field)   { logger.Warn(msg, fields...) }
+func Error(msg string, fields ...Field)  { logger.Error(msg, fields...) }
+func DPanic(msg string, fields ...Field) { logger.DPanic(msg, fields...) }
+func Panic(msg string, fields ...Field)  { logger.Panic(msg, fields...) }

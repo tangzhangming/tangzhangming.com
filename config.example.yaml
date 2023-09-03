@@ -13,10 +13,13 @@ MysqlConf:
   charset: "utf8mb4"
 
 
-
+RedisConf:
+  addr: "127.0.0.1:6379"
+  password: ""
+  db: 0
 
 #可以配置多个Redis连接
-RedisConf:
+Redis:
   default:
     addr: "127.0.0.1:6379"
     password: ""

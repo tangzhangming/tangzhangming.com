@@ -11,6 +11,10 @@ func Routes(r *gin.Engine) {
 	r.GET("options", Config)
 	r.GET("/ping", ping)
 
+	//推特视频
+	r.GET("/video/:video_id", video_detail)
+	r.GET("/video/ajax/:video_id", get_video_url)
+
 	//Api路由
 	v1 := r.Group("/api")
 	{

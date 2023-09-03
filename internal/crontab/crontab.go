@@ -10,7 +10,7 @@ var pull_redis_cache_num int = 0
 
 func Task() {
 	fmt.Println("-------------------- CRONTAB --------------------")
-
+	return
 	//New一个秒级定时任务
 	c := cron.New(cron.WithSeconds())
 
