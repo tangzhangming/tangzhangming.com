@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"tangzhangming.com/internal/pkg/config"
+	"tangzhangming.com/internal/config"
 )
 
 var DB *gorm.DB

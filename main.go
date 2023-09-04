@@ -9,6 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"tangzhangming.com/initialize"
 	"tangzhangming.com/internal/controller"
+	"tangzhangming.com/internal/crontab"
 
 	// "tangzhangming.com/internal/crontab"
 	"tangzhangming.com/internal/config"
@@ -27,7 +28,7 @@ func main() {
 
 	// database.SetConn()
 
-	// crontab.Task()
+	crontab.Task()
 
 	HttpServer()
 
@@ -41,6 +42,7 @@ func HttpServer() {
 	srv.Use(ValidatorMiddleware())
 	srv.LoadHTMLGlob("./web/template/*")
 	srv.Static("/static", "./web/static")
+	srv.Static("/upload", "./web/upload")
 	srv.StaticFile("/favicon.ico", "./web/static/favicon-32x32.png")
 
 	//注册业务路由并且启动

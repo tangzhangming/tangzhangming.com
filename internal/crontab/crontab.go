@@ -6,19 +6,21 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
+var Cron *cron.Cron
+
 var pull_redis_cache_num int = 0
 
 func Task() {
 	fmt.Println("-------------------- CRONTAB --------------------")
-	return
+
 	//New一个秒级定时任务
-	c := cron.New(cron.WithSeconds())
+	Cron = cron.New(cron.WithSeconds())
 
 	//挂载你的定时任务到这里
-	c.AddFunc("*/10 * * * * *", pull_redis_cache)
+	Cron.AddFunc("*/30 * * * * *", pull_redis_cache)
 
 	//启动定时任务
-	c.Start()
+	Cron.Start()
 }
 
 /*

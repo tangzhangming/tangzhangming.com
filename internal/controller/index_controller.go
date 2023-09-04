@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	// "strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-module/carbon"
@@ -37,5 +36,22 @@ func Config(c *gin.Context) {
 func ping(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "pong",
+	})
+}
+
+func crontab_list(c *gin.Context) {
+	// var list []map[string]string
+
+	// for id, xx := range crontab.Cron.Entries() {
+	// 	list[id] = map[string]string{
+	// 		"ID": strconv.Itoa(int(xx.ID)),
+	// 	}
+	// }
+
+	// storage.Put("ddd", "sswsw")
+
+	c.JSON(200, gin.H{
+		"message": "crontab",
+		// "data":    list,
 	})
 }
