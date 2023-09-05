@@ -25,13 +25,13 @@ type CosOptions struct {
 
 type cosAdapter struct {
 	client     *cos.Client
-	SecretID   string // 腾讯云 SecretID
-	SecretKey  string // 腾讯云 SecretKey
+	secretID   string // 腾讯云 SecretID
+	secretKey  string // 腾讯云 SecretKey
 	bucketURL  string // 腾讯云COS储存桶访问域名 例：https://BucketName.cos.ap-chongqing.myqcloud.com
 	bucketPath string // 腾讯云COS储存桶访问域名 例：BucketName.cos.ap-chongqing.myqcloud.com
 }
 
-func NewCosAdapter(options *CosOptions) AdapterInterface {
+func NewCosAdapter(options *CosOptions) (AdapterInterface, error) {
 
 	bucketPath := fmt.Sprintf("%s.cos.%s.myqcloud.com", options.BucketName, options.Region)
 	BucketURL := "https://" + bucketPath
@@ -53,18 +53,28 @@ func NewCosAdapter(options *CosOptions) AdapterInterface {
 
 	adapter := &cosAdapter{
 		client:     client,
-		SecretID:   options.SecretID,
-		SecretKey:  options.SecretKey,
+		secretID:   options.SecretID,
+		secretKey:  options.SecretKey,
 		bucketURL:  BucketURL,
 		bucketPath: bucketPath,
 	}
 
-	return adapter
+	return adapter, nil
+}
+
+func (adapter cosAdapter) File(name string) *storageObject {
+	return newStorageObject(name, adapter)
 }
 
 // 写入文件
 func (adapter cosAdapter) Write(name string, r io.Reader) error {
 	_, err := adapter.client.Object.Put(context.Background(), name, r, nil)
+	return err
+}
+
+// 把本地文件写入储存
+func (adapter cosAdapter) WriteFile(objectName string, filePath string) error {
+	_, _, err := adapter.client.Object.Upload(context.Background(), objectName, filePath, nil)
 	return err
 }
 
@@ -123,13 +133,11 @@ func (adapter cosAdapter) Copy(destination string, source string) error {
 
 // 获得文件大小
 func (adapter cosAdapter) FileSize(path string) (int, error) {
-	var length int = 0
-	var err error = nil
-
-	contentLength, err := adapter.getMeta(path, "Content-Length")
-	length, err = strconv.Atoi(contentLength)
-
-	return length, err
+	if contentLength, err := adapter.getMeta(path, "Content-Length"); err != nil {
+		return 0, err
+	} else {
+		return strconv.Atoi(contentLength)
+	}
 }
 
 // 获得对象最后修改时间
@@ -162,7 +170,7 @@ func (adapter cosAdapter) PublicUrl(path string) string {
 // 临时链接 腾讯云称作预签名url https://cloud.tencent.com/document/product/436/35059
 func (adapter cosAdapter) TemporaryUrl(path string, dateTimeOfExpiry int) string {
 
-	presignedURL, err := adapter.client.Object.GetPresignedURL(context.Background(), http.MethodGet, path, adapter.SecretID, adapter.SecretKey, time.Hour, nil)
+	presignedURL, err := adapter.client.Object.GetPresignedURL(context.Background(), http.MethodGet, path, adapter.secretID, adapter.secretKey, time.Hour, nil)
 
 	if err != nil {
 		return err.Error()

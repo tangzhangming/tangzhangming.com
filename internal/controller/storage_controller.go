@@ -41,12 +41,23 @@ func upload(c *gin.Context) {
 	// oss.Write("a.txt", "这是一个文件")
 	// atxt := oss.Read("003ed76e4dce1194ae7acc62e8bcc1d3")
 
-	// cos := filesystem.New(&filesystem.CosOptions{
-	// 	SecretID:   "AKIDbJZIeZTwIM2cTyASN17nvYemKV4QDnjC",
-	// 	SecretKey:  "SQiOMiXZNTwxlfR12aB7xuZWWSCDOjVa",
-	// 	Region:     "ap-chongqing",
-	// 	BucketName: "18596411-1251619227",
-	// })
+	cos := filesystem.New(&filesystem.CosOptions{
+		SecretID:   "AKIDbJZIeZTwIM2cTyASN17nvYemKV4QDnjC",
+		SecretKey:  "SQiOMiXZNTwxlfR12aB7xuZWWSCDOjVa",
+		Region:     "ap-chongqing",
+		BucketName: "18596411-1251619227",
+	})
+
+	tp, _ := cos.File("byte.txt").ContentType()
+	length, _ := cos.File("byte.txt").Size()
+
+	cos.WriteFile("aaaaaaa.mp4", "C:\\Users\\xiaomada_11413311716\\Downloads\\o4zfty2mxs1bBdC5.mp4.mp4")
+
+	c.JSON(200, gin.H{
+		"tp":     tp,
+		"length": length,
+	})
+	return
 
 	// err := cos.Copy("abcd.png", "18596411-1251619227.cos.ap-chongqing.myqcloud.com/mmqrcode1658475714433.png")
 	// err := cos.Move("9999999999999999.png", "a/3366.png")

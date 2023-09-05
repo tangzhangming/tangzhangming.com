@@ -2,9 +2,9 @@ package filesystem
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -12,119 +12,148 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
-//阿里云Oss
+// 阿里云Oss
 type OssOptions struct {
-	Root       string //根目录
-	Url        string //公网访问根路径
-	Visibility bool   //可见性
+	AccessKeyID     string // 腾讯云 SecretID
+	AccessKeySecret string // 腾讯云 SecretKey
+	Endpoint        string // COS region    例:ap-beijing
+	BucketName      string // COS 存储桶名称
 }
 
-type alioss struct {
-	options *OssOptions
+type OssAdapter struct {
+	options   *OssOptions
+	client    *oss.Client
+	bucket    *oss.Bucket
+	bucketUrl string
 }
 
-// 字符串写入文件 https://help.aliyun.com/zh/oss/developer-reference/simple-upload-4?spm=a2c4g.11186623.0.0.17c55d3dbs8vis#section-yn4-4dx-kfb
-func (adapter alioss) Write(path string, contents string) bool {
-	if err := adapter.Bucket().PutObject(path, strings.NewReader(contents)); err != nil {
-		return false
+func NewOssAdapter(options *OssOptions) (AdapterInterface, error) {
+	client, err := oss.New(options.Endpoint, options.AccessKeyID, options.AccessKeySecret)
+	if err != nil {
+		return nil, err
 	}
-	return true
+
+	bucket, err := client.Bucket(options.BucketName)
+	if err != nil {
+		return nil, err
+	}
+
+	//桶公网访问域名
+	bucketUrl := fmt.Sprintf("https://%s.%s", options.BucketName, options.Endpoint)
+	adapter := &OssAdapter{
+		options:   options,
+		client:    client,
+		bucket:    bucket,
+		bucketUrl: bucketUrl,
+	}
+
+	return adapter, nil
 }
 
-// 文件流保存到文件 https://help.aliyun.com/zh/oss/developer-reference/simple-upload-4?spm=a2c4g.11186623.0.0.17c55d3dbs8vis#section-98r-zsk-45o
-func (adapter alioss) WriteStream(path string, osfile *os.File) bool {
-	if err := adapter.Bucket().PutObject(path, osfile); err != nil {
-		return false
-	}
-	return true
+func (adapter OssAdapter) File(name string) *storageObject {
+	return newStorageObject(name, adapter)
+}
+
+// 写入文件
+func (adapter OssAdapter) Write(name string, content io.Reader) error {
+	return adapter.bucket.PutObject(name, content)
+}
+
+// 把本地文件写入储存
+func (adapter OssAdapter) WriteFile(objectName string, filePath string) error {
+	return adapter.bucket.PutObjectFromFile(objectName, filePath)
+}
+
+// byte写入文件
+func (adapter OssAdapter) WriteByte(name string, content []byte) error {
+	reader := bytes.NewBuffer(content)
+	return adapter.Write(name, reader)
+}
+
+// 字符串写入文件
+func (adapter OssAdapter) WriteString(name string, content string) error {
+	return adapter.Write(name, strings.NewReader(content))
 }
 
 // 读取文件
-func (adapter alioss) Read(path string) string {
-	body, err := adapter.Bucket().GetObject(path)
+func (adapter OssAdapter) Read(name string) (io.ReadCloser, error) {
+	return adapter.bucket.GetObject(name)
+}
 
+// 删除对象
+func (adapter OssAdapter) Delete(path string) error {
+	return adapter.bucket.DeleteObject(path)
+}
+
+// 判断对象是否存在
+func (adapter OssAdapter) FileExists(path string) bool {
+	isExist, err := adapter.bucket.IsObjectExist(path)
 	if err != nil {
-		return ""
+		return false
 	}
-
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(body)
-
-	return buf.String()
-}
-
-// 读取文件 Stream
-func (adapter alioss) ReadStream(path string) (io.ReadCloser, error) {
-	return adapter.Bucket().GetObject(path)
-}
-
-func (adapter alioss) FileSize(path string) (int, error) {
-	props, err := adapter.Bucket().GetObjectMeta(path)
-
-	if err != nil {
-		fmt.Println("错误" + err.Error())
-		return 0, nil
-	}
-
-	len := props.Get("Content-Length")
-	length, _ := strconv.Atoi(len)
-
-	return length, nil
-}
-
-// 该驱动不支持
-func (adapter alioss) LastModified(path string) (time.Time, error) {
-	return time.Now(), nil
-}
-
-func (adapter alioss) MimeType(path string) (string, error) {
-	props, err := adapter.Bucket().GetObjectDetailedMeta(path)
-
-	if err != nil {
-		fmt.Println("错误" + err.Error())
-		return "", nil
-	}
-
-	return props.Get("Content-Type"), nil
-}
-
-// http://<yourBucketName>.<yourEndpoint>/<yourObjectName>?x-oss-process=image/<yourAction>,<yourParamValue>
-func (adapter alioss) PublicUrl(path string) string {
-	root := strings.TrimRight(adapter.options.Url, "/")
-	return root + "/" + strings.TrimLeft(path, "/")
-}
-
-func (adapter alioss) TemporaryUrl(path string, dateTimeOfExpiry int) string {
-	signUrl, _ := adapter.Bucket().SignURL(path, oss.HTTPGet, 600, nil)
-	return signUrl
-}
-
-func (adapter alioss) Client() *oss.Client {
-	client, err := oss.New("oss-cn-beijing.aliyuncs.com", "LTAI4Ffr4a9aohpD6BtcW3TC", "R94EhMdsHahdfoUSUx4YO0zDQGn0rI")
-
-	if err != nil {
-		fmt.Println("Error:", err)
-		return nil
-	}
-
-	return client
-}
-
-func (adapter alioss) Bucket() *oss.Bucket {
-	bucket, _ := adapter.Client().Bucket("static-tangzhangming-com")
-	return bucket
-}
-
-// 判断文件是否存
-func (adapter alioss) FileExists(path string) bool {
-	isExist, _ := adapter.Bucket().IsObjectExist(path)
 	return isExist
 }
 
-// 删除文件
-func (adapter alioss) Delete(path string) bool {
-	if err := adapter.Bucket().DeleteObject(path); err != nil {
-		return false
+// 移动文件 (复制到新位置后删除旧的资源)
+func (adapter OssAdapter) Rename(oldpath string, newpath string) error {
+	if err := adapter.Copy(newpath, oldpath); err != nil {
+		return err
 	}
-	return true
+	if err := adapter.Delete(oldpath); err != nil {
+		return err
+	}
+	return nil
+}
+
+// 复制文件 source 复制到 destination
+func (adapter OssAdapter) Copy(destination string, source string) error {
+	_, err := adapter.bucket.CopyObject(source, destination, nil)
+	return err
+}
+
+func (adapter OssAdapter) FileSize(path string) (int, error) {
+	if contentLength, err := adapter.getMeta(path, "Content-Length"); err != nil {
+		return 0, err
+	} else {
+		return strconv.Atoi(contentLength)
+	}
+}
+
+// 该驱动不支持
+func (adapter OssAdapter) LastModified(path string) (time.Time, error) {
+	return time.Now(), nil
+}
+
+func (adapter OssAdapter) MimeType(path string) (string, error) {
+	return adapter.getMeta(path, "Content-Type")
+}
+
+// 文件夹系列操作
+func (adapter OssAdapter) CreateDirectory(name string) error {
+	return adapter.bucket.PutObject(name, bytes.NewReader([]byte("")))
+}
+func (adapter OssAdapter) DirectoryExists(path string) bool {
+	return false
+}
+func (adapter OssAdapter) DeleteDirectory(path string) error {
+	return errors.New("不支持文件夹删除")
+}
+
+// http://<yourBucketName>.<yourEndpoint>/<yourObjectName>?x-oss-process=image/<yourAction>,<yourParamValue>
+func (adapter OssAdapter) PublicUrl(path string) string {
+	root := strings.TrimRight(adapter.bucketUrl, "/")
+	return root + "/" + strings.TrimLeft(path, "/")
+}
+
+func (adapter OssAdapter) TemporaryUrl(path string, dateTimeOfExpiry int) string {
+	signUrl, _ := adapter.bucket.SignURL(path, oss.HTTPGet, 600, nil)
+	return signUrl
+}
+
+func (adapter OssAdapter) getMeta(path string, meteName string) (string, error) {
+	if props, err := adapter.bucket.GetObjectMeta(path); err != nil {
+		return "", nil
+	} else {
+		return props.Get(meteName), nil
+	}
 }
