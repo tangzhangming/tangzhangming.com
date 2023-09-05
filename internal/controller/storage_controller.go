@@ -41,7 +41,7 @@ func upload(c *gin.Context) {
 	// oss.Write("a.txt", "这是一个文件")
 	// atxt := oss.Read("003ed76e4dce1194ae7acc62e8bcc1d3")
 
-	cos := filesystem.New(&filesystem.CosOptions{
+	cos, _ := filesystem.New(&filesystem.CosOptions{
 		SecretID:   "AKIDbJZIeZTwIM2cTyASN17nvYemKV4QDnjC",
 		SecretKey:  "SQiOMiXZNTwxlfR12aB7xuZWWSCDOjVa",
 		Region:     "ap-chongqing",
@@ -106,7 +106,7 @@ func uploadSave(c *gin.Context) {
 		return
 	}
 
-	cos := filesystem.New(&filesystem.CosOptions{
+	cos, _ := filesystem.New(&filesystem.CosOptions{
 		SecretID:   "AKIDbJZIeZTwIM2cTyASN17nvYemKV4QDnjC",
 		SecretKey:  "SQiOMiXZNTwxlfR12aB7xuZWWSCDOjVa",
 		Region:     "ap-chongqing",

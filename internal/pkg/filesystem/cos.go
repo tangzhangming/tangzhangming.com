@@ -73,8 +73,8 @@ func (adapter cosAdapter) Write(name string, r io.Reader) error {
 }
 
 // 把本地文件写入储存
-func (adapter cosAdapter) WriteFile(objectName string, filePath string) error {
-	_, _, err := adapter.client.Object.Upload(context.Background(), objectName, filePath, nil)
+func (adapter cosAdapter) WriteFile(objectName string, localFile string) error {
+	_, _, err := adapter.client.Object.Upload(context.Background(), objectName, localFile, nil)
 	return err
 }
 

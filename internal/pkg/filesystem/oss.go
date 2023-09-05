@@ -60,8 +60,8 @@ func (adapter OssAdapter) Write(name string, content io.Reader) error {
 }
 
 // 把本地文件写入储存
-func (adapter OssAdapter) WriteFile(objectName string, filePath string) error {
-	return adapter.bucket.PutObjectFromFile(objectName, filePath)
+func (adapter OssAdapter) WriteFile(objectName string, localFile string) error {
+	return adapter.bucket.PutObjectFromFile(objectName, localFile)
 }
 
 // byte写入文件

@@ -14,7 +14,7 @@ type AdapterInterface interface {
 	Write(name string, r io.Reader) error
 
 	// 写入本地文件
-	WriteFile(objectName string, filePath string) error
+	WriteFile(objectName string, localFile string) error
 
 	// 写入byte
 	WriteByte(name string, content []byte) error
