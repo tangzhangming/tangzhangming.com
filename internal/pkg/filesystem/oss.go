@@ -12,6 +12,7 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
+//阿里云Oss
 type OssOptions struct {
 	Root       string //根目录
 	Url        string //公网访问根路径

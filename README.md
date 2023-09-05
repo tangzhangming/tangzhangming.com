@@ -40,6 +40,3 @@
     ```
 
 
-    LTAI4Ffr4a9aohpD6BtcW3TC
-R94EhMdsHahdfoUSUx4YO0zDQGn0rI
-static-tangzhangming-com

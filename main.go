@@ -9,7 +9,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"tangzhangming.com/initialize"
 	"tangzhangming.com/internal/controller"
-	"tangzhangming.com/internal/crontab"
 
 	// "tangzhangming.com/internal/crontab"
 	"tangzhangming.com/internal/config"
@@ -24,11 +23,11 @@ func main() {
 
 	initialize.LoggerInit()
 
-	initialize.RedisInit(true)
+	// initialize.RedisInit(true)
 
 	// database.SetConn()
 
-	crontab.Task()
+	// crontab.Task()
 
 	HttpServer()
 

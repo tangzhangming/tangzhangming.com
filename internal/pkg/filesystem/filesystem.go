@@ -1,30 +1,26 @@
 package filesystem
 
-import (
-	"io"
-	"os"
-	"time"
-)
+import "time"
 
 /*
  * https://flysystem.thephpleague.com/docs/usage/filesystem-api/
  * S3 阿里云 腾讯云 七牛 FTP
  */
-type FilesystemInterface interface {
+type AdapterInterface interface {
 
 	/*************** 文件系统 ***************/
 
 	// 写入
-	Write(path string, contents string) bool
+	// Write(path string, contents string) bool
 
 	// 写入stream
-	WriteStream(path string, osfile *os.File) bool
+	// WriteStream(path string, osfile *os.File) bool
 
 	// 读取文件
-	Read(path string) string
+	// Read(path string) string
 
 	// 读取文件stream
-	ReadStream(path string) (io.ReadCloser, error)
+	// ReadStream(path string) (io.ReadCloser, error)
 
 	// 删除文件
 	Delete(path string) bool
@@ -73,22 +69,36 @@ type FilesystemInterface interface {
 	TemporaryUrl(path string, dateTimeOfExpiry int) string
 }
 
-func New(adapter string, options interface{}) FilesystemInterface {
-	switch adapter {
+func New(optionsInterface interface{}) AdapterInterface {
 
-	// case "local":
-	// 	return &local{
-	// 		options: options.(*LocalOptions),
+	var fileSystem AdapterInterface
+
+	//阿里云OSS
+	// if options, ok := optionsInterface.(*OssOptions); ok {
+	// 	fileSystem = &alioss{
+	// 		options: options,
 	// 	}
+	// }
 
-	case "oss":
-		return &alioss{
-			options: options.(*OssOptions),
-		}
-
-	case "s3":
-		return nil
+	//腾讯云COS
+	if options, ok := optionsInterface.(*CosOptions); ok {
+		fileSystem = NewCosAdapter(options)
 	}
 
-	return nil
+	//七牛云储存
+
+	//AWS S3
+
+	//华为云OBS
+
+	//本地磁盘储存
+	if _, ok := optionsInterface.(*LocalOptions); ok {
+		// return &local{
+		// 	options: options,
+		// }
+	}
+
+	//FTP
+
+	return fileSystem
 }

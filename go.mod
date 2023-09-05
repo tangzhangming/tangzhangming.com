@@ -16,11 +16,15 @@ require (
 
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible // indirect
+	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/gobuffalo/envy v1.10.2 // indirect
 	github.com/gobuffalo/packd v1.0.2 // indirect
 	github.com/gobuffalo/packr v1.30.1 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/mozillazg/go-httpheader v0.4.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	github.com/tencentyun/cos-go-sdk-v5 v0.7.43 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
