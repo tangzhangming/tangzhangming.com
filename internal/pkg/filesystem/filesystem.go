@@ -1,6 +1,9 @@
 package filesystem
 
-import "time"
+import (
+	"io"
+	"time"
+)
 
 /*
  * https://flysystem.thephpleague.com/docs/usage/filesystem-api/
@@ -8,56 +11,64 @@ import "time"
  */
 type AdapterInterface interface {
 
-	/*************** 文件系统 ***************/
+	/*************** 文件读写 ***************/
 
 	// 写入
-	// Write(path string, contents string) bool
+	Write(name string, r io.Reader) error
 
-	// 写入stream
-	// WriteStream(path string, osfile *os.File) bool
+	// 比特写入文件
+	WriteByte(name string, content []byte) error
+
+	// 字符串写入文件
+	WriteString(name string, content string) error
 
 	// 读取文件
-	// Read(path string) string
+	Read(path string) (io.ReadCloser, error)
 
-	// 读取文件stream
-	// ReadStream(path string) (io.ReadCloser, error)
+
+
+	/*************** 文件操作 ***************/
+
 
 	// 删除文件
-	Delete(path string) bool
-
-	// 删除目录
-	// DeleteDirectory(path string)
+	Delete(path string) error
 
 	// 文件是否存在
 	FileExists(path string) bool
 
-	// 目录是否存在
-	// DirectoryExists(path string) bool
+	// @title 移动文件(重命名)
+	Rename(oldpath string, newpath string) error
 
-	// 返回文件最好修改时间戳
+	// @title 复制文件
+	Copy(destination string, source string) error
+
+
+	/*************** 文件信息 ***************/
+
+	// 返回文件最后修改时间
 	LastModified(path string) (time.Time, error)
 
-	// 获得文件类型
+	// 获得文件类型MimeType
 	MimeType(path string) (string, error)
 
-	// 获得文件大小
+	// 获得文件大小 (单位比特)
 	FileSize(path string) (int, error)
 
 	// 获得文件可见性
 	// Visibility(path string) string
 
+
+
+	/*************** 目录操作 ***************/
+
 	// 创建目录
-	// CreateDirectory(path string)
+	CreateDirectory(path string) error
 
-	// @title 移动文件
-	// @param source 文件的位置
-	// @param destination 文件的新位置
-	// Move(source string, destination string)
+	// 目录是否存在
+	DirectoryExists(path string) bool
 
-	// @title 复制文件
-	// @param source 文件的位置
-	// @param destination 文件的新位置
-	// Copy(source string, destination string)
+	// 删除目录
+	DeleteDirectory(path string) error
 
 	/*************** 网址生成 ***************/
 

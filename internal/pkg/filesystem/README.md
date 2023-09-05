@@ -37,6 +37,38 @@
     cos.TemporaryUrl("/vip-contents/10000.zip", 300)
 ```
 
+### 可用方法
+```
+    /*************** 文件读写 ***************/
+    Write(name string, r io.Reader) error // 写入
+    WriteByte(name string, content []byte) error// 比特写入文件
+    WriteString(name string, content string) error // 字符串写入文件
+    Read(path string) (io.ReadCloser, error) // 读取文件
+
+    /*************** 文件操作 ***************/
+    Delete(path string) error // 删除文件
+    FileExists(path string) bool // 文件是否存在
+    Rename(oldpath string, newpath string) error // @移动文件(重命名)
+    Copy(destination string, source string) error // @复制文件
+
+    /*************** 文件信息 ***************/
+    LastModified(path string) (time.Time, error) // 返回文件最后修改时间
+    MimeType(path string) (string, error) // 获得文件类型MimeType
+    FileSize(path string) (int, error) // 获得文件大小 (单位比特)
+    // Visibility(path string) string // 获得文件可见性
+
+    /*************** 目录操作 ***************/
+    CreateDirectory(path string) error // 创建目录
+    DirectoryExists(path string) bool // 目录是否存在
+    DeleteDirectory(path string) error // 删除目录
+
+    /*************** 网址生成 ***************/
+    PublicUrl(path string) string // 获得公网访问链接
+    TemporaryUrl(path string, dateTimeOfExpiry int) string // 获得临时访问链接 URL 在给定时间点后过期，之后 URL 将变得不可用 需要储存驱动支持，如AWS s3、阿里云
+```
+
+
+
 ### 不同储存源对接口的支持
 | 功能名称 | 功能函数 | 本机储存 | 阿里云OSS | 腾讯云COS | 七牛云储存  | 华为云OBS  |
 | ------------ | ------------ | ------------ | ------------ | ------------ | ------------ | ------------ |
@@ -46,3 +78,6 @@
 |  创建文件夹 | DirectoryExists(path string) | √ | × | × | × | √ |
 |  生成访问链接 | PublicUrl(path string)  | √ | √ | √ | √ | √ |
 |  生成临时链接 | TemporaryUrl(path string, sec int)  | x | √ | √ | √ | √ |
+
+
+

@@ -1,6 +1,7 @@
 package filesystem
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"strings"
@@ -53,6 +54,33 @@ func (adapter local) MimeType(path string) (string, error) {
 	contentType := http.DetectContentType(buffer)
 
 	return contentType, nil
+}
+
+// 创建文件夹
+func (adapter local) CreateDirectory(path string) error {
+	return os.Mkdir(path, 0755)
+}
+
+// 判断文件夹是否存在
+func (adapter local) DirectoryExists(path string) bool {
+	if s, err := os.Stat(path); err != nil {
+		return false
+	} else {
+		return s.IsDir()
+	}
+}
+
+// 删除文件夹
+func (adapter local) DeleteDirectory(path string) error {
+	if adapter.DirectoryExists(path) {
+		if err := os.RemoveAll(path); err != nil {
+			return err
+		} else {
+			return nil
+		}
+	}
+
+	return errors.New("文件夹不存在")
 }
 
 func (adapter local) PublicUrl(path string) string {

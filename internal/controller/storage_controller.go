@@ -41,39 +41,47 @@ func upload(c *gin.Context) {
 	// oss.Write("a.txt", "这是一个文件")
 	// atxt := oss.Read("003ed76e4dce1194ae7acc62e8bcc1d3")
 
-	cos := filesystem.New(&filesystem.CosOptions{
-		SecretID:  "AKIDbJZIeZTwIM2cTyASN17nvYemKV4QDnjC",
-		SecretKey: "SQiOMiXZNTwxlfR12aB7xuZWWSCDOjVa",
-		BucketURL: "https://18596411-1251619227.cos.ap-chongqing.myqcloud.com",
-		// BucketURL: "https://cloud-1251619227.cos.ap-chongqing.myqcloud.com",
-	})
+	// cos := filesystem.New(&filesystem.CosOptions{
+	// 	SecretID:   "AKIDbJZIeZTwIM2cTyASN17nvYemKV4QDnjC",
+	// 	SecretKey:  "SQiOMiXZNTwxlfR12aB7xuZWWSCDOjVa",
+	// 	Region:     "ap-chongqing",
+	// 	BucketName: "18596411-1251619227",
+	// })
 
-	f, _ := cos.FileSize("base.apk")
-	fMimeType, _ := cos.MimeType("base.apk")
-	LastModified, _ := cos.LastModified("base.apk")
+	// err := cos.Copy("abcd.png", "18596411-1251619227.cos.ap-chongqing.myqcloud.com/mmqrcode1658475714433.png")
+	// err := cos.Move("9999999999999999.png", "a/3366.png")
+	// if err != nil {
+	// 	c.String(200, err.Error())
+	// 	return
+	// }
 
-	c.JSON(200, gin.H{
-		// "size":         a,
-		// "LastModified": b,
-		// "MimeType":     d,
-		// "PublicUrl":    sys.PublicUrl("7685445213cdfad8f04fcfbf6912ed6f.jpg"),
-		// "TemporaryUrl": sys.TemporaryUrl("/7685445213cdfad8f04fcfbf6912ed6f.jpg", 3600),
+	// f, _ := cos.FileSize("base.apk")
+	// fMimeType, _ := cos.MimeType("base.apk")
+	// LastModified, _ := cos.LastModified("base.apk")
 
-		// "atxt":            atxt,
-		// "osssize":         ossa,
-		// "ossLastModified": ossb,
-		// "ossMimeType":     ossd,
-		// "ossPublicUrla":   oss.PublicUrl("/a.txt"),
-		// "ossPublicUrl":    oss.PublicUrl("/robots.txt"),
-		// "ossTemporaryUrl": oss.TemporaryUrl("robots.txt", 3600),
+	// c.JSON(200, gin.H{
+	// "size":         a,
+	// "LastModified": b,
+	// "MimeType":     d,
+	// "PublicUrl":    sys.PublicUrl("7685445213cdfad8f04fcfbf6912ed6f.jpg"),
+	// "TemporaryUrl": sys.TemporaryUrl("/7685445213cdfad8f04fcfbf6912ed6f.jpg", 3600),
 
-		"apksize":         f,
-		"LastModified":    LastModified,
-		"apkMimeType":     fMimeType,
-		"cosPublicUrl":    cos.PublicUrl("/base.apk"),
-		"cosTemporaryUrl": cos.TemporaryUrl("mmqrcode1658475714433.png", 3600),
-	})
-	return
+	// "atxt":            atxt,
+	// "osssize":         ossa,
+	// "ossLastModified": ossb,
+	// "ossMimeType":     ossd,
+	// "ossPublicUrla":   oss.PublicUrl("/a.txt"),
+	// "ossPublicUrl":    oss.PublicUrl("/robots.txt"),
+	// "ossTemporaryUrl": oss.TemporaryUrl("robots.txt", 3600),
+
+	// 	"apksize":         f,
+	// 	"LastModified":    LastModified,
+	// 	"apkMimeType":     fMimeType,
+	// 	"cosPublicUrl":    cos.PublicUrl("/base.apk"),
+	// 	"cosTemporaryUrl": cos.TemporaryUrl("mmqrcode1658475714433.png", 3600),
+	// 	"aistx":           cos.FileExists("a/3366.png"),
+	// })
+	// return
 
 	c.HTML(http.StatusOK, "upload.html", gin.H{
 		"appName": config.Conf.Name,
@@ -87,13 +95,31 @@ func uploadSave(c *gin.Context) {
 		return
 	}
 
+	cos := filesystem.New(&filesystem.CosOptions{
+		SecretID:   "AKIDbJZIeZTwIM2cTyASN17nvYemKV4QDnjC",
+		SecretKey:  "SQiOMiXZNTwxlfR12aB7xuZWWSCDOjVa",
+		Region:     "ap-chongqing",
+		BucketName: "18596411-1251619227",
+	})
+
+	saveName := getNewName(file)
+	// cos.WriteFile(file, saveName)
+	io, _ := file.Open()
+	cos.Write(saveName, io)
+	url := cos.PublicUrl(saveName)
+
 	//文件后缀
-	dst := path.Join("./web/upload", getNewName(file))
-	c.SaveUploadedFile(file, dst)
-	c.String(http.StatusOK, file.Filename)
+	// dst := path.Join("./web/upload", getNewName(file))
+	// c.SaveUploadedFile(file, dst)
+	// c.String(http.StatusOK, file.Filename)
+
+	// i := strings.NewReader("aaaaaaaaa")
+	// cos.WriteString("string.txt", "9999999999")
+	// cos.WriteByte("byte.txt", []byte{'a', 'b', 'b', 'c'})
 
 	c.JSON(200, gin.H{
 		"message": "crontab",
+		"url":     url,
 	})
 }
 
