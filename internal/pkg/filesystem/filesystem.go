@@ -6,6 +6,7 @@ import (
 )
 
 // 转接器interface
+//https://learnku.com/docs/laravel-cheatsheet/9.x
 type AdapterInterface interface {
 
 	/*************** 文件读写 ***************/

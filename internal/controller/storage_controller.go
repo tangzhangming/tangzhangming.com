@@ -12,6 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"tangzhangming.com/internal/config"
 	"tangzhangming.com/internal/pkg/filesystem"
+	
+	"github.com/tangzhangming/osa"
+	"github.com/tangzhangming/tools/file"
 )
 
 func upload(c *gin.Context) {
@@ -144,6 +147,8 @@ func getNewName(file *multipart.FileHeader) string {
 	hasher.Write(content)
 	md5Bytes := hasher.Sum(nil)
 	md5Str := hex.EncodeToString(md5Bytes)
+
+
 
 	return md5Str + extension
 }
