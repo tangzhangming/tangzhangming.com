@@ -145,10 +145,18 @@ func New(optionsInterface interface{}) (AdapterInterface, error) {
 		fileSystem, err = NewCosAdapter(options)
 	}
 
+	//腾讯云COS
+	if options, ok := optionsInterface.(*QiniuOptions); ok {
+		fileSystem, err = NewQiniuAdapter(options)
+	}
+
+	//S3
+	if options, ok := optionsInterface.(*S3Options); ok {
+		fileSystem, err = NewS3(options)
+	}
+
 	//华为云OBS
 	//百度云BOS
-	//七牛云储存
-	//AWS S3
 	//自建MinIo
 	//微软Azure
 	//Ucloud

@@ -16,11 +16,13 @@ require (
 
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible // indirect
+	github.com/aws/aws-sdk-go v1.45.3 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect
 	github.com/gobuffalo/envy v1.10.2 // indirect
 	github.com/gobuffalo/packd v1.0.2 // indirect
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mozillazg/go-httpheader v0.4.0 // indirect
 	github.com/qiniu/go-sdk/v7 v7.17.1 // indirect
